@@ -3,6 +3,7 @@ package com.google.cloud.vision.client;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.http.MediaType;
@@ -10,9 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.rpc.HeaderProvider;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -29,11 +30,13 @@ public class GoogleCloudVisionClientConrtoller {
   @GetMapping(path = "/google/cloud/vision/client", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public ResponseEntity<?> get() throws IOException {
 
-    Credentials myCredentials = ServiceAccountCredentials.fromStream(
+    CredentialsProvider credentialsProvider = () -> GoogleCredentials.fromStream(
         new FileInputStream("path/to/json"));
 
+    HeaderProvider headerProvider = () -> new HashMap<String, String> ();
+
     ImageAnnotatorSettings imageAnnotatorSettings = ImageAnnotatorSettings.newBuilder()
-        .setCredentialsProvider(FixedCredentialsProvider.create(myCredentials))
+        .setCredentialsProvider(credentialsProvider).setHeaderProvider(headerProvider)
         .build();
 
     // Instantiates a client
